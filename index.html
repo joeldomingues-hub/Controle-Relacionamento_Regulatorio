@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Regulatório 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f4f4f2;
+      --bg-tertiary: #ededea;
+      --text: #1a1a18;
+      --text-secondary: #6b6b67;
+      --border: rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.22);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --green-bg: #EAF3DE; --green-text: #3B6D11;
+      --red-bg: #FCEBEB; --red-text: #A32D2D;
+      --blue-text: #185FA5;
+      --amber-text: #BA7517;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --bg-tertiary: #333330;
+        --text: #e8e8e4;
+        --text-secondary: #9a9a94;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.2);
+        --green-bg: #173404; --green-text: #C0DD97;
+        --red-bg: #501313; --red-text: #F7C1C1;
+        --blue-text: #85B7EB;
+        --amber-text: #FAC775;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-icon { width: 32px; height: 32px; background: #185FA5; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+    h1 { font-size: 16px; font-weight: 500; color: var(--text); }
+    .header-sub { font-size: 12px; color: var(--text-secondary); }
+
+    .last-update { font-size: 12px; color: var(--text-secondary); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1rem; }
+
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+    .metric { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 0.875rem 1rem; }
+    .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+    .metric-value { font-size: 24px; font-weight: 500; }
+    .metric-value.blue { color: var(--blue-text); }
+    .metric-value.green { color: var(--green-text); }
+    .metric-value.red { color: var(--red-text); }
+    .metric-value.amber { color: var(--amber-text); }
+
+    .filters-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .filters-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+    .filters-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+    @media (max-width: 640px) {
+      .filters-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .filter-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .filter-label { font-size: 12px; color: var(--text-secondary); }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 13px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: #185FA5;
+      box-shadow: 0 0 0 2px rgba(24,95,165,0.15);
+    }
+
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .results-count { font-size: 13px; color: var(--text-secondary); }
+
+    .btn {
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      background: var(--bg);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--bg-secondary); color: var(--text); }
+
+    .table-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+    thead tr { background: var(--bg-secondary); }
+
+    th {
+      padding: 9px 10px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 0.5px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover { color: var(--text); }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text);
+      max-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--bg-secondary); }
+
+    .col-id { width: 55px; }
+    .col-sit { width: 160px; }
+    .col-vinculo { width: 75px; }
+    .col-nome { width: 200px; }
+    .col-cnpj { width: 145px; }
+    .col-status { width: 90px; }
+    .col-doc { width: 75px; text-align: center !important; }
+    .col-pasta { width: 180px; }
+    .col-link { width: 130px; }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .badge-ativo { background: var(--green-bg); color: var(--green-text); }
+    .badge-inativo { background: var(--red-bg); color: var(--red-text); }
+    .badge-other { background: var(--bg-secondary); color: var(--text-secondary); }
+
+    .bool-yes { color: var(--green-text); font-size: 15px; }
+    .bool-no { color: var(--red-text); font-size: 15px; }
+
+    .sort-icon { font-size: 10px; margin-left: 2px; opacity: 0.4; }
+    .sort-icon.active { opacity: 1; color: var(--text); }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .page-btn {
+      background: none;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text);
+      font-family: inherit;
+      transition: background 0.1s;
+    }
+    .page-btn:disabled { opacity: 0.35; cursor: default; }
+    .page-btn.active { background: var(--bg-secondary); font-weight: 500; }
+    .page-btn:not(:disabled):hover { background: var(--bg-secondary); }
+    .page-info { font-size: 12px; color: var(--text-secondary); margin-left: 4px; }
+
+    .empty-row td { text-align: center; padding: 2rem; color: var(--text-secondary); }
+
+    .loading-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 3rem;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .spin { animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      font-size: 13px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 1.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
+    <div>
+      <h1>Dashboard Regulatório 2</h1>
+      <div class="header-sub">Aba REGULATORIO2 · Google Sheets</div>
+    </div>
+  </div>
+  <div class="last-update" id="last-update">—</div>
+</header>
+
+<main>
+  <div id="error-area"></div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Total filtrado</div>
+      <div class="metric-value" id="m-total">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Ativos</div>
+      <div class="metric-value green" id="m-ativo">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Inativos</div>
+      <div class="metric-value red" id="m-inativo">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Doc. completa</div>
+      <div class="metric-value blue" id="m-doc">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total geral</div>
+      <div class="metric-value amber" id="m-all">—</div>
+    </div>
+  </div>
+
+  <div class="filters-card">
+    <div class="filters-title"><i class="ti ti-filter" aria-hidden="true"></i> Filtros</div>
+    <div class="filters-grid">
+      <div class="filter-wrap">
+        <label class="filter-label" for="f-id">Busca por ID</label>
+        <input id="f-id" type="text" placeholder="Ex: 1929">
+      </div>
+      <div class="filter-wrap">
+        <label class="filter-label" for="f-nome">Busca por nome</label>
+        <input id="f-nome" type="text" placeholder="Ex: Camaquã">
+      </div>
+      <div class="filter-wrap">
+        <label class="filter-label" for="f-doc">Documentação completa</label>
+        <select id="f-doc">
+          <option value="">Todos</option>
+          <option value="sim">Sim ✓</option>
+          <option value="nao">Não ✗</option>
+        </select>
+      </div>
+      <div class="filter-wrap">
+        <label class="filter-label" for="f-status">Status</label>
+        <select id="f-status">
+          <option value="">Todos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-bar">
+    <span class="results-count" id="results-count"></span>
+    <button class="btn" id="refresh-btn" onclick="refresh()">
+      <i class="ti ti-refresh" aria-hidden="true"></i> Atualizar dados
+    </button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-wrap">
+      <div class="loading-overlay" id="loading">
+        <span class="spin"><i class="ti ti-refresh" style="font-size:18px"></i></span>
+        Carregando dados da planilha...
+      </div>
+      <table id="main-table" style="display:none">
+        <thead>
+          <tr>
+            <th class="col-id" onclick="sortBy('id')">ID <span class="sort-icon" id="sort-id">⇅</span></th>
+            <th class="col-sit" onclick="sortBy('situacao')">Situação E-mec <span class="sort-icon" id="sort-situacao">⇅</span></th>
+            <th class="col-vinculo" onclick="sortBy('vinculo')">Vínculo <span class="sort-icon" id="sort-vinculo">⇅</span></th>
+            <th class="col-nome" onclick="sortBy('nome')">Nome <span class="sort-icon" id="sort-nome">⇅</span></th>
+            <th class="col-cnpj">CNPJ</th>
+            <th class="col-status" onclick="sortBy('status')">Status <span class="sort-icon" id="sort-status">⇅</span></th>
+            <th class="col-doc" onclick="sortBy('doc')">Doc. <span class="sort-icon" id="sort-doc">⇅</span></th>
+            <th class="col-link">Pasta (link)</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination" style="display:none"></div>
+  </div>
+</main>
+
+<footer>
+  Dados carregados em tempo real do Google Sheets · Clique em "Atualizar dados" para sincronizar
+</footer>
+
+<script>
+const SHEET_ID = '1fVH0Yc4Zo6PKcwEpWSgSbAPnSVLXqgaahj9i3HdK92c';
+const GID = '1722842106';
+
+let allData = [];
+let filtered = [];
+let page = 1;
+const PAGE_SIZE = 25;
+let sortCol = null;
+let sortDir = 1;
+
+async function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('main-table').style.display = 'none';
+  document.getElementById('pagination').style.display = 'none';
+  document.getElementById('error-area').innerHTML = '';
+
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}&t=${Date.now()}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    // gviz wraps JSON in /*O_o*/\ngoogle.visualization.Query.setResponse(...)
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    parseGviz(json);
+    populateStatusFilter();
+    applyFilters();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-table').style.display = 'table';
+    document.getElementById('pagination').style.display = 'flex';
+    const now = new Date();
+    document.getElementById('last-update').textContent = 'Atualizado: ' + now.toLocaleTimeString('pt-BR');
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-area').innerHTML = `
+      <div class="error-msg">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <div>
+          <strong>Erro ao carregar dados</strong><br>
+          ${e.message}<br>
+          <small>Certifique-se de que a planilha está pública: Compartilhar → Qualquer pessoa com o link → Visualizador.</small>
+        </div>
+      </div>`;
+  }
+}
+
+function cellVal(cell) {
+  if (!cell) return '';
+  if (cell.v === null || cell.v === undefined) return '';
+  if (typeof cell.v === 'boolean') return cell.v ? 'true' : 'false';
+  return String(cell.f !== undefined ? cell.f : cell.v).trim();
+}
+
+function parseGviz(json) {
+  const rows = json.table.rows;
+  // Find header row: row where col B contains "Situação" or col C contains "ID"
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    const r = rows[i];
+    const b = cellVal(r.c[1]).toLowerCase();
+    const c = cellVal(r.c[2]);
+    if (b.includes('situação') || c === 'ID') { headerIdx = i; break; }
+  }
+
+  allData = [];
+  for (let i = (headerIdx >= 0 ? headerIdx + 1 : 0); i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r.c) continue;
+    const id = cellVal(r.c[2]);
+    const nome = cellVal(r.c[4]);
+    if (!id && !nome) continue;
+    allData.push({
+      situacao: cellVal(r.c[1]),
+      id: id,
+      vinculo:  cellVal(r.c[3]),
+      nome:     cellVal(r.c[4]),
+      cnpj:     cellVal(r.c[6]),
+      status:   cellVal(r.c[7]),
+      doc:      cellVal(r.c[12]),
+      pasta:    cellVal(r.c[13]),
+      link:     cellVal(r.c[14]),
+    });
+  }
+}
+
+function populateStatusFilter() {
+  const sel = document.getElementById('f-status');
+  const current = sel.value;
+  const statuses = [...new Set(allData.map(r => r.status).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todos</option>' + statuses.map(s =>
+    `<option value="${s}"${s===current?' selected':''}>${s}</option>`
+  ).join('');
+}
+
+function isTrue(val) {
+  const v = (val || '').toLowerCase().trim();
+  return v === 'true' || v === '1' || v === 'sim' || v === 'yes';
+}
+
+function applyFilters() {
+  const idQ = document.getElementById('f-id').value.toLowerCase().trim();
+  const nomeQ = document.getElementById('f-nome').value.toLowerCase().trim();
+  const docQ = document.getElementById('f-doc').value;
+  const statusQ = document.getElementById('f-status').value;
+
+  filtered = allData.filter(r => {
+    if (idQ && !r.id.toLowerCase().includes(idQ)) return false;
+    if (nomeQ && !r.nome.toLowerCase().includes(nomeQ)) return false;
+    if (docQ === 'sim' && !isTrue(r.doc)) return false;
+    if (docQ === 'nao' && isTrue(r.doc)) return false;
+    if (statusQ && r.status !== statusQ) return false;
+    return true;
+  });
+
+  if (sortCol) {
+    filtered.sort((a, b) => {
+      const av = a[sortCol] || '', bv = b[sortCol] || '';
+      if (sortCol === 'id') return (parseInt(av) - parseInt(bv)) * sortDir;
+      return av.localeCompare(bv, 'pt-BR') * sortDir;
+    });
+  }
+
+  page = 1;
+  renderMetrics();
+  renderTable();
+}
+
+function sortBy(col) {
+  document.querySelectorAll('.sort-icon').forEach(el => { el.textContent = '⇅'; el.classList.remove('active'); });
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  const el = document.getElementById('sort-' + col);
+  if (el) { el.textContent = sortDir === 1 ? '↑' : '↓'; el.classList.add('active'); }
+  applyFilters();
+}
+
+function renderMetrics() {
+  const total = filtered.length;
+  const ativo = filtered.filter(r => r.status.toUpperCase() === 'ATIVO').length;
+  const inativo = filtered.filter(r => r.status.toUpperCase() === 'INATIVO').length;
+  const docOk = filtered.filter(r => isTrue(r.doc)).length;
+  document.getElementById('m-total').textContent = total.toLocaleString('pt-BR');
+  document.getElementById('m-ativo').textContent = ativo.toLocaleString('pt-BR');
+  document.getElementById('m-inativo').textContent = inativo.toLocaleString('pt-BR');
+  document.getElementById('m-doc').textContent = docOk.toLocaleString('pt-BR');
+  document.getElementById('m-all').textContent = allData.length.toLocaleString('pt-BR');
+  document.getElementById('results-count').textContent =
+    `${total.toLocaleString('pt-BR')} registro${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}`;
+}
+
+function boolBadge(val) {
+  if (isTrue(val)) return '<span class="bool-yes" title="Sim">✓</span>';
+  const v = (val || '').toLowerCase().trim();
+  if (v === 'false' || v === '0' || v === 'não' || v === 'nao') return '<span class="bool-no" title="Não">✗</span>';
+  return `<span style="color:var(--text-secondary)">${val || '—'}</span>`;
+}
+
+function statusBadge(s) {
+  const u = (s || '').toUpperCase();
+  if (u === 'ATIVO') return `<span class="badge badge-ativo">Ativo</span>`;
+  if (u === 'INATIVO') return `<span class="badge badge-inativo">Inativo</span>`;
+  if (!s) return '<span style="color:var(--text-secondary)">—</span>';
+  return `<span class="badge badge-other">${s}</span>`;
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderTable() {
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = filtered.slice(start, start + PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  let rows = '';
+  if (slice.length === 0) {
+    rows = '<tr class="empty-row"><td colspan="8">Nenhum registro encontrado com os filtros aplicados.</td></tr>';
+  } else {
+    for (const r of slice) {
+      rows += `<tr>
+        <td class="col-id" title="${esc(r.id)}">${esc(r.id)}</td>
+        <td class="col-sit" title="${esc(r.situacao)}">${esc(r.situacao) || '—'}</td>
+        <td class="col-vinculo" title="${esc(r.vinculo)}">${esc(r.vinculo) || '—'}</td>
+        <td class="col-nome" title="${esc(r.nome)}">${esc(r.nome) || '—'}</td>
+        <td class="col-cnpj" title="${esc(r.cnpj)}">${esc(r.cnpj) || '—'}</td>
+        <td class="col-status">${statusBadge(r.status)}</td>
+        <td class="col-doc" style="text-align:center">${boolBadge(r.doc)}</td>
+        <td class="col-link">${r.link ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener" style="color:var(--blue-text);text-decoration:none;display:flex;align-items:center;gap:4px"><i class="ti ti-folder-open" style="font-size:14px"></i>Abrir pasta</a>' : '—'}</td>
+      </tr>`;
+    }
+  }
+  document.getElementById('tbl-body').innerHTML = rows;
+
+  let pagHTML = `<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''} aria-label="anterior"><i class="ti ti-chevron-left"></i></button>`;
+  const maxShow = 5;
+  let lo = Math.max(1, page - 2), hi = Math.min(totalPages, lo + maxShow - 1);
+  if (hi - lo < maxShow - 1) lo = Math.max(1, hi - maxShow + 1);
+  for (let p = lo; p <= hi; p++) {
+    pagHTML += `<button class="page-btn${p===page?' active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  pagHTML += `<button class="page-btn" onclick="goPage(${page+1})" ${page>=totalPages?'disabled':''} aria-label="próxima"><i class="ti ti-chevron-right"></i></button>`;
+  pagHTML += `<span class="page-info">Página ${page} de ${totalPages}</span>`;
+  document.getElementById('pagination').innerHTML = pagHTML;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  page = Math.max(1, Math.min(p, totalPages));
+  renderTable();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function refresh() {
+  const btn = document.getElementById('refresh-btn');
+  btn.innerHTML = '<span class="spin"><i class="ti ti-refresh"></i></span> Atualizando...';
+  btn.disabled = true;
+  loadData().finally(() => {
+    btn.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Atualizar dados';
+    btn.disabled = false;
+  });
+}
+
+document.getElementById('f-id').addEventListener('input', applyFilters);
+document.getElementById('f-nome').addEventListener('input', applyFilters);
+document.getElementById('f-doc').addEventListener('change', applyFilters);
+document.getElementById('f-status').addEventListener('change', applyFilters);
+
+loadData();
+</script>
+</body>
+</html>
